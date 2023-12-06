@@ -2,19 +2,21 @@ import functools
 import re
 from flask import (
     Blueprint,
-    falsh,
     g,
     redirect,
     render_template,
     request,
     session,
-    url_for
+    url_for,
+    jsonify
 )
 
 from werkzeug.security import (
     check_password_hash,
     generate_password_hash,
 )
+
+from ..error import InvalidAPIUsage
 
 
 auth_path = Blueprint("auth", __name__, url_prefix="/auth")
@@ -84,7 +86,7 @@ class ResgisterUser(object):
             return False
 
 
-@auth_path.route("resgiter", methods=("POST"))
+@auth_path.route("/register", methods=["POST"])
 def resgister():
     if request.method != "POST":
         pass # TODO RASIE ERROR
@@ -97,7 +99,7 @@ def resgister():
     resgister_user.nick_name = request.form.get("nick_name", None)
 
     if not resgister_user.vaild():
-        return {}
+        raise InvalidAPIUsage("参数错误")
     
     
 

@@ -1,10 +1,11 @@
 #! -*- coding:utf8 -*-
 
-from flask import Flask
+from flask import Flask,jsonify, request
 from dotenv import load_dotenv
 
 from .common import init_db_app
-
+from .views.auth import auth_path
+from .error import *
 class AppFactory():
 
     @staticmethod 
@@ -20,7 +21,13 @@ class AppFactory():
         # 初始化 db
         init_db_app(app)
         ## 引入视图
-
+        app.register_blueprint(auth_path)
         return app
 
 app = AppFactory.create_app()
+
+
+@app.errorhandler(InvalidAPIUsage)
+def invalid_api_usage(e):
+    return jsonify(e.to_dict()), e.status_code
+

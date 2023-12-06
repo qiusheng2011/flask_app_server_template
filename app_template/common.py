@@ -22,7 +22,7 @@ def get_db():
     else:
         return g["dbconnect"]
 
-def close_db():
+def close_db(e=None):
     db = g.pop("db_connect",None)
     if db is not None:
         db.close()
