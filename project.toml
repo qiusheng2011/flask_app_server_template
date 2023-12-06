@@ -1,0 +1,10 @@
+[project]
+name="[application name]"
+dependencies=[
+    flask,
+    python-dotenv
+]
+
+[bulid-system]
+requires = []
+build-backend = ""
