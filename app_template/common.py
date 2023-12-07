@@ -5,22 +5,24 @@ import pymysql
 
 from flask import current_app as app , g
 
-dbconnect = None
 
 def get_db():
     if "db_connect" not in g:
-        prefix_ = app.config["flask_app_template"]+"_"
-        dbconnect = pymysql.connect(
-            host=app.config[prfix_+"mysql_host"],
-            port=app.cofig[prfix_+"mysql_port"],
-            user=app.config[prfix_+"mysql_user"],
-            password=app.config[prfix_+'mysql_password'],
-            database=app.config[prfix_+'mysql_database']
+        prefix_ = app.config["config_prefix"]+"_"
+        g.dbconnect = pymysql.connect(
+            host=app.config["mysql_host"],
+            port=int(app.config["mysql_port"]),
+            user=app.config["mysql_user"],
+            password=app.config['mysql_password'],
+            database=app.config['mysql_database'],
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor,
+            autocommit=True
         )
-        g["db_connect"]=dbconnect
-        return dbconnect
+      
+        return g.dbconnect
     else:
-        return g["dbconnect"]
+        return g.dbconnect
 
 def close_db(e=None):
     db = g.pop("db_connect",None)

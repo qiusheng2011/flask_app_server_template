@@ -9,7 +9,7 @@
       "type": "python",
       "request": "launch",
       "module": "gunicorn",
-      "env": { "FLASK_APP": "app_template", "FLASK_DEBUG": "1" },
+      "env": { "FLASK_APP": "app_template", "FLASK_DEBUG": "1","FLASK_APP_TEMPLATE_DEBUG":"1"},
       "args": ["-w 1", "app_template:app"],
       "jinja": true,
       "justMyCode": true

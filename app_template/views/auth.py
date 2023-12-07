@@ -17,6 +17,7 @@ from werkzeug.security import (
 )
 
 from ..error import InvalidAPIUsage
+from ..common import get_db
 
 
 auth_path = Blueprint("auth", __name__, url_prefix="/auth")
@@ -29,7 +30,7 @@ class ResgisterUser(object):
         self._password = None
         self._first_name = None
         self._last_name = None
-        self._nick_name =None 
+        self._nickname =None 
 
     @property
     def email(self):
@@ -72,15 +73,15 @@ class ResgisterUser(object):
             self._last_name = value
     
     @property
-    def nick_name(self):
-        return self._nick_name
-    @nick_name.setter
-    def nick_name(self, value):
+    def nickname(self):
+        return self._nickname
+    @nickname.setter
+    def nickname(self, value):
         if re.match(r"[0-9a-zA-Z]+", value or ""):
-            self._nick_name = value
+            self._nickname = value
 
     def vaild(self):
-        if self.last_name and self.first_name and self.nick_name and self.email and self.password:
+        if self.last_name and self.first_name and self.nickname and self.email and self.password:
             return True
         else:
             return False
@@ -91,16 +92,34 @@ def resgister():
     if request.method != "POST":
         pass # TODO RASIE ERROR
 
-    resgister_user = ResgisterUser()
-    resgister_user.email = request.form.get("email", None)
-    resgister_user.password = request.form.get("password", None)
-    resgister_user.first_name = request.form.get("first_name", "")
-    resgister_user.last_name = request.form.get("last_name", "")
-    resgister_user.nick_name = request.form.get("nick_name", None)
+    register_user = ResgisterUser()
+    register_user.email = request.form.get("email", None)
+    register_user.password = request.form.get("password", None)
+    register_user.first_name = request.form.get("first_name", "")
+    register_user.last_name = request.form.get("last_name", "")
+    register_user.nickname = request.form.get("nickname", None)
 
-    if not resgister_user.vaild():
+    if not register_user.vaild():
         raise InvalidAPIUsage("参数错误")
     
+    with get_db().cursor() as cursor:
+        select_user = "select id from account where email=%(email)s"
+        cursor.execute(select_user,{"email":register_user.email})
+        rst = cursor.fetchall()
+        if rst:
+            raise InvalidAPIUsage("用户已经存在")
+        insert_user = "insert into account (email, password, first_name, last_name, nickname) value(%(email)s, %(password)s, %(first_name)s, %(last_name)s, %(nickname)s)"
+        cursor.execute(insert_user,{
+            "email":register_user.email,
+            "last_name": register_user.last_name,
+            "first_name": register_user.first_name,
+            "password": register_user.password,
+            "nickname":register_user.nickname
+        })
+        return jsonify({
+            "status": 0,
+            "message":"ok"
+        })
     
 
 
