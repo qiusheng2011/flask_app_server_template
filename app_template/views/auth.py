@@ -8,7 +8,8 @@ from flask import (
     request,
     session,
     url_for,
-    jsonify
+    jsonify,
+    current_app as app
 )
 
 from werkzeug.security import (
@@ -107,6 +108,8 @@ def resgister():
         cursor.execute(select_user,{"email":register_user.email})
         rst = cursor.fetchall()
         if rst:
+            app.logger.info(f"{register_user.email} 注册失败")
+
             raise InvalidAPIUsage("用户已经存在")
         insert_user = "insert into account (email, password, first_name, last_name, nickname) value(%(email)s, %(password)s, %(first_name)s, %(last_name)s, %(nickname)s)"
         cursor.execute(insert_user,{
@@ -116,10 +119,12 @@ def resgister():
             "password": register_user.password,
             "nickname":register_user.nickname
         })
-        return jsonify({
+        app.logger.info(f"{register_user.email} 注册成功")
+
+        return {
             "status": 0,
             "message":"ok"
-        })
+        }
     
 
 
