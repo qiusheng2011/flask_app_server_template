@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from .common import init_db_app
 from .views.auth import auth_path
 from .error import *
-
+from .applogging import ApplicationLoggingSetting
 json.provider.DefaultJSONProvider.ensure_ascii = False
 
 current_path = os.path.realpath(os.path.dirname(__file__))
@@ -25,6 +25,10 @@ class AppFactory():
         app.config.from_prefixed_env("flask_app_template", loads=lambda x:x)
         app.config['config_prefix'] = "flask_app_template"
 
+        # 日志配置
+        logging_setting = ApplicationLoggingSetting("flask_app_template", app.config["logging_socket_host"], int(app.config["logging_socket_port"]))
+        logging_setting.setting_logger()
+
         # 初始化 db
         init_db_app(app)
         ## 引入视图
@@ -32,7 +36,6 @@ class AppFactory():
         return app
 
 app = AppFactory.create_app()
-
 
 @app.errorhandler(InvalidAPIUsage)
 def invalid_api_usage(e):
