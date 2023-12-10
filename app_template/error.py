@@ -10,7 +10,7 @@ class InvalidAPIUsage(Exception):
         self.message = message
         self.status_code = status_code
         self.payload = payload
-        current_app.logger.info(f"{status_code}\t{message}")
+        current_app.logger.info(f"{status_code}\t{message}", extra=payload)
     
     def to_dict(self):
         rv = dict(self.payload or ())
